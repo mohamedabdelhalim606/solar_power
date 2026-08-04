@@ -2,8 +2,13 @@ __pycache__/
 *.pyc
 *.pyo
 .env
-models/lstm_solar_pkg.pkl
-models/lstm_solar_model.keras
-models/plant_models/
-*.keras
-*.pkl
+predictions.db
+venv/
+
+# Model files are intentionally tracked in git for Render deployment.
+# If they exceed GitHub's 100 MB limit, use Git LFS:
+#   git lfs track "*.keras" "*.pkl"
+# Uncomment the lines below to exclude model files from regular git:
+# models/lstm_solar_pkg.pkl
+# models/lstm_solar_model.keras
+# models/plant_models/

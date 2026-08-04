@@ -6,8 +6,19 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
+      // Proxy all /api/* and /predict/*, /health calls to the local backend
       '/api': {
-        target: 'http://127.0.0.1:8005',
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/predict': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/health': {
+        target: 'http://127.0.0.1:8000',
         changeOrigin: true,
         secure: false,
       },

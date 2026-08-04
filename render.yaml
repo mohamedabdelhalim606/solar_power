@@ -1,0 +1,50 @@
+# render.yaml — Render Infrastructure-as-Code
+# Deploys:
+#   1. solarai-backend  — FastAPI + LSTM model as a Web Service
+#   2. solarai-frontend — React/Vite build as a Static Site
+#
+# Usage:
+#   1. Push this repo to GitHub / GitLab
+#   2. Connect the repo in the Render dashboard → "New Blueprint"
+#   3. Render will auto-discover this file and create both services
+#   4. After the backend deploys, copy its URL (e.g. https://solarai-backend.onrender.com)
+#      and set it as VITE_API_BASE in the frontend service's Environment settings,
+#      then trigger a manual redeploy of the frontend.
+
+services:
+
+  # ── Backend ────────────────────────────────────────────────────────────────
+  - type: web
+    name: solarai-backend
+    runtime: python
+    plan: free          # upgrade to 'starter' for always-on (no spin-down)
+    rootDir: solar_api/solar_api
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+
+  # ── Frontend ───────────────────────────────────────────────────────────────
+  - type: web
+    name: solarai-frontend
+    runtime: static
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    # IMPORTANT: After the backend deploys, update VITE_API_BASE here (or in the Render dashboard)
+    # to match your actual backend URL, then redeploy.
+    envVars:
+      - key: VITE_API_BASE
+        value: https://solarai-backend.onrender.com
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache, no-store, must-revalidate
+    routes:
+      # SPA catch-all: redirect all routes to index.html
+      - type: rewrite
+        source: /*
+        destination: /index.html
