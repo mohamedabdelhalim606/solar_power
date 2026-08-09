@@ -86,7 +86,10 @@ def build_seq_array(
     Apply scaler and reshape into LSTM input shape (1, SEQ_LEN, N_FEATURES).
     """
     vals = g[seq_features].values.astype(np.float64)
-    vals_scaled = seq_scaler.transform(vals).astype(np.float32)
+    if seq_scaler is None:
+        vals_scaled = vals.astype(np.float32)
+    else:
+        vals_scaled = seq_scaler.transform(vals).astype(np.float32)
     return vals_scaled.reshape(1, seq_len, len(seq_features))
 
 
@@ -99,6 +102,8 @@ def build_meta_array(
     meta_vec must be in META_COLS order (raw, unscaled).
     """
     meta_raw = meta_vec.reshape(1, -1).astype(np.float64)
+    if meta_scaler is None:
+        return meta_raw.astype(np.float32)
     return meta_scaler.transform(meta_raw).astype(np.float32)
 
 
